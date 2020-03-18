@@ -24,7 +24,7 @@ def draw(histo, max_x = 30, num_of_shifts = 4):
     distributions = []
     
     distributions.append(dTuple.DistributionTuple(st.poisson, [10], 'Poisson', 'red'))
-	distributions.append(dTuple.DistributionTuple(st.binom, [1000, 0.5], 'Binomial', 'gold')) #[1000, 0.01]
+    distributions.append(dTuple.DistributionTuple(st.binom, [1000, 0.5], 'Binomial', 'gold')) #[1000, 0.01]
     distributions.append(dTuple.DistributionTuple(st.binom, [4, 0.01], 'Negative binomial', 'fuchsia')) #[2000, 0.01]
     #distributions.append(dTuple.DistributionTuple(st.geom, [0.0001], 'Geometric', 'gold'))
     #distributions.append(dTuple.DistributionTuple(disc.Discretize(st.pareto.cdf), [0.0001], 'Pareto', 'forestgreen'))
