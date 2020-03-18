@@ -23,12 +23,14 @@ def draw(histo, max_x = 30, num_of_shifts = 4):
     # vytvorime si DistributionTuples, ktore si ulozime do pola
     distributions = []
     
-    distributions.append(dTuple.DistributionTuple(st.poisson, [2], 'Poisson', 'red'))
-    distributions.append(dTuple.DistributionTuple(st.geom, [0.0001], 'Geometric', 'gold'))
-    distributions.append(dTuple.DistributionTuple(disc.Discretize(st.pareto.cdf), [0.0001], 'Pareto', 'forestgreen'))
-    distributions.append(dTuple.DistributionTuple(disc.Discretize(st.gamma.cdf), [0.5], 'Gamma', 'royalblue'))
-    distributions.append(dTuple.DistributionTuple(disc.Discretize(st.cauchy.cdf), [0.0001], 'Cauchy', 'fuchsia'))
-    #distributions.append(dTuple.DistributionTuple(disc.Discretize(st.norm.cdf), [2, 1], 'Gauss', 'black'))
+    distributions.append(dTuple.DistributionTuple(st.poisson, [10], 'Poisson', 'red'))
+	distributions.append(dTuple.DistributionTuple(st.binom, [1000, 0.5], 'Binomial', 'gold')) #[1000, 0.01]
+    distributions.append(dTuple.DistributionTuple(st.binom, [4, 0.01], 'Negative binomial', 'fuchsia')) #[2000, 0.01]
+    #distributions.append(dTuple.DistributionTuple(st.geom, [0.0001], 'Geometric', 'gold'))
+    #distributions.append(dTuple.DistributionTuple(disc.Discretize(st.pareto.cdf), [0.0001], 'Pareto', 'forestgreen'))
+    #distributions.append(dTuple.DistributionTuple(disc.Discretize(st.gamma.cdf), [0.5], 'Gamma', 'royalblue'))
+    #distributions.append(dTuple.DistributionTuple(disc.Discretize(st.cauchy.cdf), [0.0001], 'Cauchy', 'fuchsia'))
+    distributions.append(dTuple.DistributionTuple(disc.Discretize(st.norm.cdf), [20, 1], 'Gauss', 'black'))
     #distributions.append(dTuple.DistributionTuple(st.betabinom, [len(x), 1, 1], 'BetaBinom', 'black'))
 
     #pole objektov DistributionData
