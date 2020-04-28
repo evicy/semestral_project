@@ -10,7 +10,7 @@ import DataForDrawing as DataForDrawing
 import DistributionTuple as dTuple
 
 
-def draw(histo, max_x = 30, num_of_shifts = 4):
+def draw(histo, max_x = 30, title='Title', x_axis_name='x axis', y_axis_name='y axis', num_of_shifts=1):
     # Funkcia vykresli vsetky distribucie * num_of_shifts pre data z histo (jellyfish histo file)
     # vypise 3 najlepsie distribucie s najmensim errorom (pre L1 a L2 normy)
     
@@ -57,9 +57,9 @@ def draw(histo, max_x = 30, num_of_shifts = 4):
         
         plt.ylim(min(y), 2)
         plt.xlim(0, max_x)
-        plt.title('Histogram o početnosti čítaní', fontsize=20)
-        plt.xlabel('Čítania na intervaloch', fontsize=15)
-        plt.ylabel('Pocet čítaní', fontsize=15)
+        plt.title(title, fontsize=20)
+        plt.xlabel(x_axis_name, fontsize=12)
+        plt.ylabel(y_axis_name, fontsize=12)
         plt.legend(loc='best', prop={'size': 15})
         plt.show()
 
