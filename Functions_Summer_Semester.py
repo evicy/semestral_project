@@ -14,58 +14,64 @@ def read_bedgraph(path):
     """Reads the bedgraph from the path
 
     Returns:
-        array containing on each index 4 entries:
-        chromName  chromStartPosition  chromEndPosition  dataValue
+        numpy array where elements look like this:
+        [ chromStartPosition  chromEndPosition  dataValue]
     """
-    with open(path) as bed: 
-        bed_reader = csv.reader(bed, delimiter='\t')
-        bed_columns = list(zip(*bed_reader))
-    return bed_columns
+    return np.loadtxt(path, usecols=range(1,4), dtype=int)
+
     
     
 def get_bedG_ranges(bed_columns):
-    """Returns numpy array containing the 2nd and 3rd column 
-    (chromStartPosition, chromEndPosition) from the bedgraph's columns """
-    return np.array([(int(bed_columns[1][i]), int(bed_columns[2][i])) for i in range(len(bed_columns[1]))])
+    """Returns numpy array containing (chromStartPosition, chromEndPosition) 
+    from the bedgraph's columns 
+    Looks like this:[ [chromStartPosition  chromEndPosition] ...]
+    """
+    return bed_columns[: , 0:2]
 
 
 def get_bedG_ranges_size(bed_columns):
-    """Returns numpy array containing the size of the ranges of the bedgraph's columns:
-    3rd column - 2nd column =  (chromEndPosition - chromStartPosition)"""
-    return np.array([(int(bed_columns[2][i]) - int(bed_columns[1][i])) for i in range(len(bed_columns[1]))])
+    """Returns numpy array containing the size of the ranges of the bedgraph's columns
+    Looks like this: [ chromEndPosition-chromStartPosition, ...] 
+    """
+    ranges = get_bedG_ranges(bed_columns)
+    result = np.zeros(len(ranges), dtype=int)
+    for i in range(len(ranges)):
+        result[i] = int(ranges[i][1]-ranges[i][0])    
+    return result
 
 
 def get_bedG_scores(bed_columns):
-    """Returns numpy array containing the 4th column 
-    (dataValue) from the bedgraph's columns """
-    return np.array([int(bed_columns[3][i]) for i in range(len(bed_columns[3]))])
+    """Returns numpy array containing the values(number of reads) 
+    Looks like this: [value, ...] """
+    return bed_columns[:,2]
 
 
 # vrati najvacsiu chromEndPosition
 def get_bedG_maxPosition(bed_columns):
     """Returns the ending position of the bedgraph (biggest chromEndPosition)"""
-    return bed_columns[2][len(bed_columns[0])-1]
+    return bed_columns[len(bed_columns)-1][1]
+
 
 
 #function inserts bedG_range_sizes[i] times value bedG_scores[i] 
 def filler(bedG_range_sizes, bedG_scores):
     """Function returns numpy array where
     bedG_scores[i] is inserted bedG_range_sizes[i] times"""
-    return np.repeat(bedG_scores, bedG_range_sizes)	
+    return np.repeat(bedG_scores, bedG_range_sizes)
     
     
     
 
 ######## DISTRIBUTION DRAWING FUNCTIONS ########
 
-def drawHistogramsForReads(ranges, score, title='Title', x_axis_name='x axis', y_axis_name='y axis'):
+def drawHistogramsForReads(ranges, score, title='Title', x_axis_name='x axis', y_axis_name='y axis', max_x=100):
     """Draws distributions 
     To change the distributions go to: DrawDistributions.py - function draw """
     if len(ranges) != len(score):
         raise ValueError('Wrong files, the length of arrays should be equal')
 
     # Zadaj limitu pre os x:
-    max_x=100
+    max_x=max_x
 
     #spravim histogram a zobrazim ho pomocou draw
     histo = {}
@@ -85,19 +91,28 @@ def drawHistogramsForReads(ranges, score, title='Title', x_axis_name='x axis', y
 
 ######## HEATMAP ########
 
-def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', x_axis_name='x', y_axis_name='y', are_integers=True):
+def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', x_axis_name='x', y_axis_name='y', x_axis_are_integers=True, y_axis_are_integers=True):
     """Draws a 2D heatmap
     are_integers = bins have to be changed for data with non-integer values on y axis
     """
     #predpokladam, ze tie mena chromozom su v rovnakom poradi a velkost suboru je rovanaka
 
-    #bins = nasekat rovnomerne
-
-    plt.figure(figsize=(20,10))  
-    if are_integers:
-        plt.hist2d(x, y,bins=(range(max(x)), range(max(y))), cmap='plasma')
-    else:
-        plt.hist2d(x, y,bins=(range(max(x)), np.linspace(min(y),max(y))), cmap='plasma')
+    plt.figure(figsize=(20,10)) 
+    
+    if x_axis_are_integers:
+        x_bin = range(max(x))
+    
+    if x_axis_are_integers==False:
+        x_bin = np.linspace(min(x),max(x))
+        
+    if y_axis_are_integers:
+        y_bin = range(max(y))
+    
+    if y_axis_are_integers==False:
+        y_bin = np.linspace(min(y),max(y))
+    
+    
+    plt.hist2d(x, y,bins=(x_bin, y_bin), cmap='plasma')
 
 
     cb = plt.colorbar()
@@ -173,8 +188,7 @@ def count_entropy(string):
     probabilities.append(string.count('A')/length)
     probabilities.append(string.count('T')/length)
 
-    return entropy(probabilities, base=2)
-
+    return round(entropy(probabilities, base=2),2)
 
     
 ######## BOXPLOT ########
