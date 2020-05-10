@@ -60,6 +60,60 @@ def filler(bedG_range_sizes, bedG_scores):
     return np.repeat(bedG_scores, bedG_range_sizes)
     
     
+############################### NOT USED ##################################################### 
+# something like the filler, but the avarage of step values will be stored in the result array
+# the resulting array will be step times smaller
+def compressed_filler(bedG_range_sizes, bedG_scores):
+    step = 40
+    read_from_prev = 0
+    can_read = step
+   
+    result = np.zeros(math.ceil(np.sum(bedG_range_sizes)/step), dtype=int)
+    print(math.ceil(np.sum(bedG_range_sizes)/step))
+    res_index = 0
+   
+    for i in range(len(bedG_range_sizes)):
+        #print("i = ", i)
+        while read_from_prev > 0:
+            #print("while: read_from_prev = ", read_from_prev)
+            read = min(step, read_from_prev)
+            result[res_index] += (read * bedG_scores[i-1])
+            read_from_prev -= read
+            if read_from_prev > 0:
+                res_index +=1
+            if read_from_prev == 0:
+                if read != step:
+                    can_read -= read
+                   
+        if (can_read - bedG_range_sizes[i]) >= 0:
+            #print("if: can_read  = ", can_read, " bedG_range_sizes[i] = ", bedG_range_sizes[i])
+            result[res_index] += bedG_range_sizes[i] * bedG_scores[i]
+            can_read -= bedG_range_sizes[i]
+            if can_read == 0:
+                can_read = step
+                res_index += 1
+
+        else:
+            #print("else: can_read  = ", can_read, " bedG_range_sizes[i] = ", bedG_range_sizes[i])
+            #print("read_from_prev = ", read_from_prev)
+            result[res_index] += can_read * bedG_scores[i]
+            read_from_prev = bedG_range_sizes[i] - can_read
+            res_index += 1
+            can_read = step
+        #print("\n")
+       
+    for i in range(len(result)):
+        if i == len(result)-1 and (len(bedG_range_sizes) % step != 0) :
+            print(result[i])
+            result[i] = result[i]/(step-(len(bedG_range_sizes) % step))
+            print("result", result[i])
+            print((step-(len(bedG_range_sizes) % step)))
+        else:
+            result[i] = result[i]/step
+    return result
+############################### NOT USED ##################################################### 
+    
+
     
 
 ######## DISTRIBUTION DRAWING FUNCTIONS ########
@@ -91,28 +145,32 @@ def drawHistogramsForReads(ranges, score, title='Title', x_axis_name='x axis', y
 
 ######## HEATMAP ########
 
-def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', x_axis_name='x', y_axis_name='y', x_axis_are_integers=True, y_axis_are_integers=True):
+def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_axis_name='x', y_axis_name='y', x_axis_are_integers=True, y_axis_are_integers=True):
     """Draws a 2D heatmap
     are_integers = bins have to be changed for data with non-integer values on y axis
     """
-    #predpokladam, ze tie mena chromozom su v rovnakom poradi a velkost suboru je rovanaka
-
     plt.figure(figsize=(20,10)) 
     
-    if x_axis_are_integers:
-        x_bin = range(max(x))
+    #ak bin neni nastaveny
+    if bins == -1:
+        # moze nastat memory error
+
+        if x_axis_are_integers:
+            x_bin = range(max(x))
+
+        if x_axis_are_integers==False:
+            x_bin = np.linspace(min(x),max(x))
+            
+        if y_axis_are_integers:
+            y_bin = range(max(y))
+            
+        if y_axis_are_integers==False:
+            y_bin = np.linspace(min(y),max(y))
     
-    if x_axis_are_integers==False:
-        x_bin = np.linspace(min(x),max(x))
-        
-    if y_axis_are_integers:
-        y_bin = range(max(y))
+        bins = (x_bin, y_bin)
+
     
-    if y_axis_are_integers==False:
-        y_bin = np.linspace(min(y),max(y))
-    
-    
-    plt.hist2d(x, y,bins=(x_bin, y_bin), cmap='plasma')
+    plt.hist2d(x, y,bins=bins, cmap='plasma')
 
 
     cb = plt.colorbar()
@@ -123,7 +181,6 @@ def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', x_axis_name='
     plt.ylabel(y_axis_name, fontsize=15)
 
     plt.show()
-
 
 
 
