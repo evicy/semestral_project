@@ -145,6 +145,8 @@ def drawHistogramsForReads(ranges, score, title='Title', x_axis_name='x axis', y
 
 ######## HEATMAP ########
 
+# if memory error occures then the problem may be because of the number of bins
+# specify a small value, for example bins=(300,300)
 def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_axis_name='x', y_axis_name='y', x_axis_are_integers=True, y_axis_are_integers=True):
     """Draws a 2D heatmap
     are_integers = bins have to be changed for data with non-integer values on y axis
