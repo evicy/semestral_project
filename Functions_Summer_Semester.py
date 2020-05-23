@@ -12,7 +12,6 @@ from scipy.stats import entropy
 
 def read_bedgraph(path):
     """Reads the bedgraph from the path
-
     Returns:
         numpy array where elements look like this:
         [ chromStartPosition  chromEndPosition  dataValue]
@@ -145,9 +144,8 @@ def drawHistogramsForReads(ranges, score, title='Title', x_axis_name='x axis', y
 
 ######## HEATMAP ########
 
-# if memory error occures then the problem may be because of the number of bins
-# specify a small value, for example bins=(300,300)
-def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_axis_name='x', y_axis_name='y', x_axis_are_integers=True, y_axis_are_integers=True):
+def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_axis_name='x', y_axis_name='y',
+                 x_axis_are_integers=True, y_axis_are_integers=True, max_value_to_show = math.inf):
     """Draws a 2D heatmap
     are_integers = bins have to be changed for data with non-integer values on y axis
     """
@@ -158,13 +156,13 @@ def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_ax
         # moze nastat memory error
 
         if x_axis_are_integers:
-            x_bin = range(max(x))
+            x_bin = range(int(max(x)))
 
         if x_axis_are_integers==False:
             x_bin = np.linspace(min(x),max(x))
             
         if y_axis_are_integers:
-            y_bin = range(max(y))
+            y_bin = range(int(max(y)))
             
         if y_axis_are_integers==False:
             y_bin = np.linspace(min(y),max(y))
@@ -172,7 +170,7 @@ def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_ax
         bins = (x_bin, y_bin)
 
     
-    plt.hist2d(x, y,bins=bins, cmap='plasma')
+    plt.hist2d(x, y, cmap='plasma',cmax=max_value_to_show, bins=bins)
 
 
     cb = plt.colorbar()
@@ -251,6 +249,13 @@ def count_entropy(string):
 
     return round(entropy(probabilities, base=2),2)
 
+
+#function to replace all values greater than limit with numpy.NaN
+def remove_values_greater(array, limit):
+    result = np.array(array, dtype=float)
+    np.putmask(result, result>limit, np.NaN)
+    return result
+    
     
 ######## BOXPLOT ########
 
