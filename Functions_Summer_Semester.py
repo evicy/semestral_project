@@ -189,21 +189,22 @@ def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_ax
 ######## FASTA FUNCTIONS ########
 
 def read_fasta_file(filename):
-    """Converts fasta file to list. 
-    The returned list contains only characters of the sequence"""
     data = []
     with open(filename) as fasta:
+        chrom = []
         for line in fasta: 
-            if not line.startswith(">"):
+            if line.startswith(">"):
+                if len(chrom) != 0:
+                    data.append(chrom)
+                chrom = []
+            else:
                 for c in line.strip():
-                    data.append(c)
+                    chrom.append(c)
+        data.append(chrom)
+    #print(len(data))
     return data
 
-
 def create_values_from_fasta(fasta_data, kmer_length, function):
-    """Function creates a list of values. 
-    These values are created by applying a function on a window (sublist). 
-    We save the value to the middle position (middle of k-mer length)"""
     if (kmer_length % 2 != 1):
         raise ValueError('The length of k-mer should be odd!')
     
@@ -211,18 +212,19 @@ def create_values_from_fasta(fasta_data, kmer_length, function):
 
     half = int(kmer_length/2) 
     
-    for i in range(len(fasta_data) - kmer_length +1):  # +1lebo ideme aj za posledne pismenko
-        window = fasta_data[i:i+kmer_length]
+    for chrom in fasta_data:
+        for i in range(len(chrom) - kmer_length +1):  # +1lebo ideme aj za posledne pismenko
+            window = chrom[i:i+kmer_length]
 
-        #ak su to kraje, tak napln half-krat values
-        if i == 0 or i == (len(fasta_data) - kmer_length):
-            # !!! pomale: values += [function(window)] * half
-            values.extend(function(window) for i in range(half))
-            
-        #ak su to vnutorne casti
-        if i >= 0 and i <= (len(fasta_data) - kmer_length):
-            values.append(function(window))  
+            #ak su to kraje, tak napln half-krat values
+            if i == 0 or i == (len(chrom) - kmer_length):
+                values.extend(function(window) for i in range(half))
+
+            #ak su to vnutorne casti
+            if i >= 0 and i <= (len(chrom) - kmer_length):
+                values.append(function(window))  
     return values
+  
     
 
 def count_GC(string):
