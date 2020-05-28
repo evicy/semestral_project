@@ -1,6 +1,8 @@
 import numpy as np
 import csv
 import matplotlib.pyplot as plt
+import matplotlib as mpl
+import numpy.ma as ma
 import math
 import pandas as pd  
 import seaborn as sns
@@ -144,8 +146,13 @@ def drawHistogramsForReads(ranges, score, title='Title', x_axis_name='x axis', y
 
 ######## HEATMAP ########
 
+# Masks the values that are greater than the limit
+def masker(a, limit):
+    result = ma.masked_array(a, mask = (a>limit))
+    return result
+
 def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_axis_name='x', y_axis_name='y',
-                 x_axis_are_integers=True, y_axis_are_integers=True, max_value_to_show = math.inf):
+                 x_axis_are_integers=True, y_axis_are_integers=True, max_value_to_show = math.inf, log_scale=False):
     """Draws a 2D heatmap
     are_integers = bins have to be changed for data with non-integer values on y axis
     """
@@ -169,8 +176,10 @@ def make_heatmap(x, y, title='Heatmap', colorbar_title = 'values', bins=-1, x_ax
     
         bins = (x_bin, y_bin)
 
-    
-    plt.hist2d(x, y, cmap='plasma',cmax=max_value_to_show, bins=bins)
+    if log_scale:
+        plt.hist2d(x, y, cmap='plasma',cmax=max_value_to_show, bins=bins, norm=mpl.colors.LogNorm())
+    else:
+        plt.hist2d(x, y, cmap='plasma',cmax=max_value_to_show, bins=bins)
 
 
     cb = plt.colorbar()
